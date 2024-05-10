@@ -8,15 +8,14 @@ from PIL import Image, ImageEnhance
 import io
 import time
 import logging
-import os  # Import os module
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 # Set your Azure Computer Vision credentials
-subscription_key = os.getenv(VISION_KEY)
-endpoint = os.getenv(VISION_ENDPOINT)
-
+subscription_key = os.getenv("VISION_KEY")
+endpoint = os.getenv("VISION_ENDPOINT")
 # Check if variables are set
 if not subscription_key:
     st.error("Environment variable 'VISION_KEY' is not set.")
