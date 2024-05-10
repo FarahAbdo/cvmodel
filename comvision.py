@@ -125,7 +125,6 @@
 #             st.write(f"{text['text']}")
 #     else:
 #         st.write("No text detected.")
-
 import streamlit as st
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
@@ -238,22 +237,28 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Image', use_column_width=True)
 
-    st.write("Enhancing and classifying the image...")
-    filtered_results, results = classify_image(image)
-    text_results = analyze_image(image)
+    if st.button("Analyze Image"):
+        try:
+            st.write("Enhancing and classifying the image...")
+            filtered_results, results = classify_image(image)
+            text_results = analyze_image(image)
 
-    st.write("### Classification Results:")
-    if filtered_results:
-        for result in filtered_results:
-            st.write(f"{result['label']}: {result['score']:.2f}")
-    else:
-        st.write("No high-confidence classification results found.")
+            st.write("### Classification Results:")
+            if filtered_results:
+                for result in filtered_results:
+                    st.write(f"{result['label']}: {result['score']:.2f}")
+            else:
+                st.write("No high-confidence classification results found.")
 
-    st.write("### Text Analysis Results:")
-    st.write("Detected text:")
-    if text_results:
-        for text in text_results:
-            st.write(f"{text['text']}")
-    else:
-        st.write("No text detected.")
+            st.write("### Text Analysis Results:")
+            st.write("Detected text:")
+            if text_results:
+                for text in text_results:
+                    st.write(f"{text['text']}")
+            else:
+                st.write("No text detected.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+            logging.error(f"Error during image analysis: {e}")
+
 
