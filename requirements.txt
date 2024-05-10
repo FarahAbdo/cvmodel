@@ -1,0 +1,6 @@
+streamlit
+azure-cognitiveservices-vision-computervision
+msrest
+torch
+transformers
+Pillow
