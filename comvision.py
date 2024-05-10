@@ -14,8 +14,8 @@ import os  # Import os module
 logging.basicConfig(level=logging.INFO)
 
 # Set your Azure Computer Vision credentials
-subscription_key = os.getenv("VISION_KEY")
-endpoint = os.getenv("VISION_ENDPOINT")
+subscription_key = os.getenv(VISION_KEY)
+endpoint = os.getenv(VISION_ENDPOINT)
 
 # Check if variables are set
 if not subscription_key:
