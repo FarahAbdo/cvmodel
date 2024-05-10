@@ -125,3 +125,4 @@ if uploaded_file is not None:
             st.write(f"{text['text']}")
     else:
         st.write("No text detected.")
+
