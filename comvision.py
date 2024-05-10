@@ -257,3 +257,4 @@ if uploaded_file is not None:
     else:
         st.write("No text detected.")
 
+
