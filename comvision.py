@@ -128,7 +128,6 @@
 
 
 
-
 import streamlit as st
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
@@ -178,81 +177,19 @@ def classify_image(image):
         logits = outputs.logits_per_image[0]
         probs = logits.softmax(dim=-1).numpy()
         scores = probs.tolist()
-        results = [{"score": score, "label": candidate_label} for score, candidate_label in sorted(zip(scores, candidate_labels), key=lambda x: -x[0])]
-        logging.info(f"Raw classification results: {results}")
-        confidence_threshold = 0.5
-        filtered_results = [result for result in results if result['score'] > confidence_threshold]
-        logging.info(f"Filtered classification results: {filtered_results}")
-        return filtered_results, results
+        results = [{"label": label, "score": score} for label, score in zip(candidate_labels, scores)]
+        return results
     except Exception as e:
         logging.error(f"Error classifying image: {e}")
         raise
 
-# Function to analyze image with Azure Computer Vision
-def analyze_image(image):
-    try:
-        image = enhance_image(image)
-        image_stream = io.BytesIO()
-        image.save(image_stream, format='JPEG')
-        image_stream.seek(0)
-        read_response = computervision_client.read_in_stream(image_stream, raw=True)
-        read_operation_location = read_response.headers["Operation-Location"]
-        operation_id = read_operation_location.split("/")[-1]
-        while True:
-            read_result = computervision_client.get_read_result(operation_id)
-            if read_result.status not in [OperationStatusCodes.running, OperationStatusCodes.not_started]:
-                break
-            time.sleep(1)
-        text_results = []
-        if read_result.status == OperationStatusCodes.succeeded:
-            for page in read_result.analyze_result.read_results:
-                for line in page.lines:
-                    bounding_box = {
-                        "left": min(line.bounding_box[0::2]),
-                        "top": min(line.bounding_box[1::2]),
-                        "width": max(line.bounding_box[0::2]) - min(line.bounding_box[0::2]),
-                        "height": max(line.bounding_box[1::2]) - min(line.bounding_box[1::2])
-                    }
-                    text_results.append({
-                        "text": line.text,
-                        "bounding_box": bounding_box
-                    })
-        logging.info(f"Text analysis results: {text_results}")
-        return text_results
-    except Exception as e:
-        logging.error(f"Error analyzing image: {e}")
-        raise
-
-# Streamlit app
-st.title("Zeelan Image Classification and Analysis")
-
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image', use_column_width=True)
-
-    if st.button("Analyze Image"):
-        try:
-            st.write("Enhancing and classifying the image...")
-            filtered_results, results = classify_image(image)
-            text_results = analyze_image(image)
-
-            st.write("### Classification Results:")
-            if filtered_results:
-                for result in filtered_results:
-                    st.write(f"{result['label']}: {result['score']:.2f}")
-            else:
-                st.write("No high-confidence classification results found.")
-
-            st.write("### Text Analysis Results:")
-            st.write("Detected text:")
-            if text_results:
-                for text in text_results:
-                    st.write(f"{text['text']}")
-            else:
-                st.write("No text detected.")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-            logging.error(f"Error during image analysis: {e}")
-
+# Example usage
+if __name__ == "__main__":
+    uploaded_image = st.file_uploader("Upload an image", type=["jpg", "png"])
+    if uploaded_image:
+        image = Image.open(uploaded_image)
+        st.image(image, caption="Uploaded Image", use_column_width=True)
+        results = classify_image(image)
+        st.write("Predicted labels and scores:")
+        for result in results:
+            st.write(f"{result['label']}: {result['score']:.4f}")
