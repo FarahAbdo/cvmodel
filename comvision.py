@@ -156,7 +156,7 @@ if not endpoint:
 # Initialize Computer Vision client
 computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
 
-# Load models and processor
+# Load models and processor with force_download=True
 checkpoint = "openai/clip-vit-large-patch14"
 model = AutoModelForZeroShotImageClassification.from_pretrained(checkpoint, force_download=True)
 processor = AutoProcessor.from_pretrained(checkpoint, force_download=True)
@@ -256,3 +256,4 @@ if uploaded_file is not None:
             st.write(f"{text['text']}")
     else:
         st.write("No text detected.")
+
