@@ -150,7 +150,7 @@ endpoint = st.secrets["azure_vision"]["endpoint"]
 computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
 
 # Load models and processor with force_download=True
-checkpoint = "openai/clip-vit-large-patch14"
+checkpoint = "openai/clip-vit-base-patch16"
 model = AutoModelForZeroShotImageClassification.from_pretrained(checkpoint, force_download=True)
 processor = AutoProcessor.from_pretrained(checkpoint, force_download=True)
 
