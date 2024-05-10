@@ -125,6 +125,10 @@
 #             st.write(f"{text['text']}")
 #     else:
 #         st.write("No text detected.")
+
+
+
+
 import streamlit as st
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
@@ -135,22 +139,13 @@ from PIL import Image, ImageEnhance
 import io
 import time
 import logging
-import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Set your Azure Computer Vision credentials
-subscription_key = os.getenv("VISION_KEY")
-endpoint = os.getenv("VISION_ENDPOINT")
-
-# Check if environment variables are set
-if not subscription_key:
-    st.error("Environment variable 'VISION_KEY' is not set. Please set this variable and restart the app.")
-    raise ValueError("Subscription key cannot be None")
-if not endpoint:
-    st.error("Environment variable 'VISION_ENDPOINT' is not set. Please set this variable and restart the app.")
-    raise ValueError("Endpoint cannot be None")
+# Set your Azure Computer Vision credentials from Streamlit secrets
+subscription_key = st.secrets["azure_vision"]["subscription_key"]
+endpoint = st.secrets["azure_vision"]["endpoint"]
 
 # Initialize Computer Vision client
 computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
@@ -260,5 +255,4 @@ if uploaded_file is not None:
         except Exception as e:
             st.error(f"An error occurred: {e}")
             logging.error(f"Error during image analysis: {e}")
-
 
