@@ -99,7 +99,7 @@ def analyze_image(image):
         raise
 
 # Streamlit app
-st.title("Zeelan Image Classification and Analysis")
+st.title("Zeelan Image Classification and Analysis Demo")
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
