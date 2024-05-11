@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python version
         uses: actions/setup-python@v2
@@ -28,10 +29,19 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
 
+      - name: Cleanup unnecessary files
+        run: |
+          find . -type f -name '*.log' -delete  # Delete log files
+          find . -type f -name '*.tmp' -delete  # Delete temporary files
+          rm -rf __pycache__  # Remove Python cache files
+
+      - name: Check disk space before zipping
+        run: df -h
+
       - name: Zip artifact for deployment
         run: |
-          zip -r release.zip ./*
-          rm -rf venv  # Ensure virtual environment is not included
+          zip -r release.zip ./* -x "venv/*"  # Exclude the virtual environment
+          rm -rf venv  # Remove virtual environment after zipping
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
@@ -54,6 +64,9 @@ jobs:
         with:
           name: python-app
 
+      - name: Check disk space before deployment
+        run: df -h
+
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
@@ -64,11 +77,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
           app-name: 'zeelanmodel'
           package: .
-          slot-name: 'Production'
 
+      - name: Final cleanup
+        run: rm -rf *
